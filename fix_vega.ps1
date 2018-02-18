@@ -116,21 +116,13 @@ function ChangeVegaState {
     # Loop through each display adapter and change it's state
 	foreach ($dev in $displays) {       
         "$operationType display adapter $i" | Out-Host
-        
-        # Define the operation type to perform...
-        if ($EnableOperation){
-            $displayCommand = Enable-PnpDevice
-        }
-        else {
-            $displayCommand = Disable-PnpDevice
-        }
-
+    
         # Perform the display adapter state change operation
         if ($EnableOperation){
             Enable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
         }
         else {
-            Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
+            Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false# | Out-Null
         }
 		
         "$operationType (ed) display adapter $i" | Out-Host
@@ -181,6 +173,8 @@ function DisableCrossfireUlps {
     }
 }
 
+ChangeVegaState -SkipLastVega
+return
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
