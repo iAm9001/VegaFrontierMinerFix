@@ -59,46 +59,77 @@ function installBlockchainDrivers {
 }
 
 #* Disables all Vega Frontier devices on the system, or optionall to skip disabling the firt one.
-function DisableVegas {
+#* Default is to disable; the function can be used to enable cards by specifying the EnableOperation switch.
+function ChangeVegaState {
     Param(
-       # Optional switch to instruct function to skip disabling the first Vega display adapter
+       # Optional switch to instruct function to skip disabling / enabling the first Vega display adapter
        [Parameter(Mandatory = $false)]
        [switch]
-       $SkipFirstVega)
+       $SkipFirstVega,
 
-    'Getting primary Vega...' | Out-Host
-    
+       # Specify to perform enable operations instead
+       [Parameter(Mandatory = $false)]
+       [switch]
+       $EnableOperation)
+
+    # Set value for output display of either enable or disable operation
+    $operationType = [string]::Empty
+    if ($EnableOperation){
+        $operationType = 'Enable'
+    }
+    else {
+        $operationType = 'Disable'
+    }
+
+     
     # Get all Vega frontier display adapters
 	$displays = Get-PnpDevice| Where-Object {$_.friendlyname -like 'Radeon Vega Frontier Edition'}
     
     # Remove the first Vega display adapter from the list if the SkipFirstVega switch was specified
     if ($SkipFirstVega){
-        
+
+    'Getting primary Vega...' | Out-Host
+
     # Establish the primary Vega display adapter from index 0
     $mainVega = $displays[0]
     
     'Primary Vega identified as ' + $mainVega.HardwareID | Out-Host
 
-    # Set the collection of all of the displays to equal itself minus the first isplay
+    # Set the collection of all of the displays to equal itself minus the first display
     $displays = $displays| Where-Object {$_ -ne $mainVega}
     }
 
     # Initialize counter for console output
     $i = 1
-    # Loop through each display adapter and disable it
+    # Loop through each display adapter and change it's state
 	foreach ($dev in $displays) {       
-        'Disabling remaining Vegas...' + $i | Out-Host
+        "$operationType display adapter $i" | Out-Host
         
-        # Perform the display adapter disable operation
-		Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
-        'Disabled ' + $i | Out-Host
+        # Define the operation type to perform...
+        if ($EnableOperation){
+            $displayCommand = Enable-PnpDevice
+        }
+        else {
+            $displayCommand = Disable-PnpDevice
+        }
 
-        # Sleep for 3 seconds in between each disable operation
+        # Perform the display adapter state change operation
+        if ($EnableOperation){
+            Enable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
+        }
+        else {
+            Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
+        }
+		
+        "$operationType (ed) display adapter $i" | Out-Host
+
+        # Sleep for 3 seconds in between each operation
         Start-Sleep -Seconds 3
         
         $i++
-	}
-'Finish disabling non-primary Vegas...' | Out-Host
+    }
+    
+"Finished $operationType (ing) Vegas..." | Out-Host
 'Sleeping for 2 minutes before resuming script operation...' | Out-Host
 
 # Sleep for 2 minutes before resuming script operation...
