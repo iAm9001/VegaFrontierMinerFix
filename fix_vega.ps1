@@ -155,7 +155,7 @@ function DisableCrossfireUlps {
     'Disabling Crossfire and ULPS on all Vega...' | Out-Host
 
     # Set the path to your Vega Frontier registry keys here
-    $regKeyPath = 'SYSTEM\CurrentControlSet\Control\Class\ {4d36e968-e325-11ce-bfc1-08002be10318}'
+    $regKeyPath = 'SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}'
 
     # Navigate to the Windows Registry
     Set-Location HKLM:\$regKeyPath
