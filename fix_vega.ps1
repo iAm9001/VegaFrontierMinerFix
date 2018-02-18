@@ -21,7 +21,7 @@ function cleanVegaDrivers {
     }
 
     # Get the parent folder name of the DDU executable
-    $dduParentFolder = [FileInfo]::new($DduExecutableFullPath).DirectoryName
+    $dduParentFolder = [System.IO.FileInfo]::new($DduExecutableFullPath).DirectoryName
 
     'Cleaning AMD drivers..' | Out-Host
 
