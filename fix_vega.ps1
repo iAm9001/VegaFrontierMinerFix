@@ -2,23 +2,22 @@
 and then begin the process of performing the steps requried to make your Vega Frontier
 graphics cards perform adequately for mining with maximum hash rates.
 #> 
-Param(
-[Parameter(Mandatory = $false, 
-           
-           ParameterSetName = "VegaParams", 
-           ValueFromPipeline = $false, 
-           ValueFromPipelineByPropertyName = $false, 
-           HelpMessage = "Sets the script to intiate DDU removal")]
-[ValidateNotNullOrEmpty()]
-[switch]
-$ParameterName)
 
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
 function cleanVegaDrivers {
+    Param(
+        [Parameter(Mandatory=$true,
+            ParameterSetName="VegaParams",
+            HelpMessage="Literal path to DDU executable...")]
+    [Alias("PSPath")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $ddu)
+
     'Cleaning AMD drivers..' | Out-Host
     Set-Location C:\crypto\ddu 
-    (& '.\Display Driver Uninstaller.exe' -silent -cleanamd) | Out-Null  #-restart
+    (& $ddu -silent -cleanamd) | Out-Null  #-restart
     Start-Sleep -Seconds 15
     
     'sleeping for 10 seconds before rebooting after DDU...' | Out-Host
@@ -175,7 +174,7 @@ function DisableCrossfireUlps {
 workflow VegaFixWorkflow {
     
     # Clean the Vega drivers from your system
-    cleanVegaDrivers
+    cleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
     Restart-Computer -Force -Wait
 
     # Install the Adrenaline drivers
