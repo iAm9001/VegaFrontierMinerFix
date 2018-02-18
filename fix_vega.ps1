@@ -25,3 +25,13 @@ function cleanVegaDrivers {
     start-sleep - s 10
     'rebooting...' | Out-Host
 }
+
+#* This function will install the AMD Adrenaline drivers 
+function installAdrenalineDrivers {
+    'Installing Adrenaline drivers....' | Out-Host
+    $displays = Get-PnpDevice | Where-Object {($_.friendlyname -like 'Microsoft Basic Display Adapter' -and $_.Present) -or $_.friendlyname -like 'Radeon Vega Frontier Edition'} | select -Index 0
+    Start-Process -Wait -FilePath 'C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe' -ArgumentList @(("update C:\AMD\Win10-64Bit-Radeon-Software-Adrenalin-Edition-18.1.1-Jan4\Packages\Drivers\Display\WT6A_INF\C0322612.inf " + $displays[0].HardwareID[0])) | Out-Null
+    'Installation of Adrenaline drivers complete.' | Out-Host
+    'Pausing for 2 minutes before next operations...' | Out-Host
+    Start-Sleep -Seconds 120
+}
