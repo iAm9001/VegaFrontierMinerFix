@@ -196,6 +196,14 @@ workflow VegaFixWorkflow {
     # Finished!
     return
 }
+
+# Ensure that the script is being executed with Administrator authority
+If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+
+	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+	Exit
+}
+
 # Create the scheduled job properties
 $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
 
