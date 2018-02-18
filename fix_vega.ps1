@@ -161,7 +161,8 @@ function DisableCrossfireUlps {
     Set-Location HKLM:\$regKeyPath
 
     # Get all registry key paths, ignore errors
-    $keyPaths = Get-ChildItem -ErrorAction SilentlyContinue | Out-Null
+    $keyPaths = Get-ChildItem -ErrorAction SilentlyContinue
+
     
     # Navigate to each Vega Frontier display adapter registry path, that ends with a numbered
     # display adapter, and disable Crossfire and Ulps.
@@ -179,6 +180,9 @@ function DisableCrossfireUlps {
         'Next...' | Out-Host
     }
 }
+
+DisableCrossfireUlps
+return
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
