@@ -41,7 +41,7 @@ function installAdrenalineDrivers {
     'Installing Adrenaline drivers....' | Out-Host
 
     # Grab only the last device
-    $displays = Get-PnpDevice | Where-Object {($_.friendlyname -like 'Microsoft Basic Display Adapter' -and $_.Present) -or $_.friendlyname -like 'Radeon Vega Frontier Edition'} | select -Index -1
+    $displays = (Get-PnpDevice | Where-Object {($_.friendlyname -like 'Microsoft Basic Display Adapter' -and $_.Present) -or $_.friendlyname -like 'Radeon Vega Frontier Edition'})[-1]
     
     # Initiate a new Powershell process to install the drivers using Devcon
     Start-Process -Wait -FilePath 'C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe' -ArgumentList @(("update C:\AMD\Win10-64Bit-Radeon-Software-Adrenalin-Edition-18.1.1-Jan4\Packages\Drivers\Display\WT6A_INF\C0322612.inf " + $displays.HardwareID[0])) | Out-Null
@@ -58,7 +58,7 @@ function installBlockchainDrivers {
     'Installing Blockchain drivers...' | Out-Host
     
     # Grab only the last display
-    $displays = Get-PnpDevice | Where-Object {$_.friendlyname -like 'Radeon Vega Frontier Edition'} | Select -Index -1
+    $displays = (Get-PnpDevice | Where-Object {$_.friendlyname -like 'Radeon Vega Frontier Edition'})[-1]
     
     # Initiate a new Powershell process to install the drivers using Devcon
     Start-Process -Wait -FilePath 'C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe' -ArgumentList @(("update C:\amd\Win10-64Bit-Crimson-ReLive-Beta-Blockchain-Workloads-Aug23\Packages\Drivers\Display\WT6A_INF\C0317304.inf " + $displays.HardwareID[0])) | Out-Null
