@@ -181,8 +181,6 @@ function DisableCrossfireUlps {
     }
 }
 
-DisableCrossfireUlps
-return
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
