@@ -173,8 +173,6 @@ function DisableCrossfireUlps {
     }
 }
 
-ChangeVegaState -SkipLastVega
-return
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
@@ -238,4 +236,3 @@ Register-ScheduledJob -Name VegaFixWorkflow -Trigger $AtStartup -Credential $cre
 
 # Execute the workflow as a new job
 VegaFixWorkflow -AsJob -JobName new_resume_workflow_job
-
