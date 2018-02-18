@@ -203,6 +203,18 @@ workflow VegaFixWorkflow {
     # Enable all Vega adapters except for the last adapter (should already been enabled)
     ChangeVegaState -EnableOperation -SkipLastVega
 
+    # Install Blockchain drivers...
+    installBlockchainDrivers
+
+    # Disable Crossfire and Ulps on all cards again, just in case...
+    DisableCrossfireUlps
+
+    # Disable all Vega display adapters...
+    ChangeVegaState
+
+    # Enable all Vega dispay adapters...
+    ChangeVegaState -EnableOperation
+
     # Finished!
     return
 }
