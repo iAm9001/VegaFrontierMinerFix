@@ -15,6 +15,11 @@ function cleanVegaDrivers {
     [string]
     $ddu)
 
+    # Halt script execution if DDU could not be successfully executed
+    if (!test-path $ddu){
+        throw 'Error --- could not locate DDU executable!'
+    }
+
     'Cleaning AMD drivers..' | Out-Host
     Set-Location C:\crypto\ddu 
     (& $ddu -silent -cleanamd) | Out-Null  #-restart
