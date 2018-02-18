@@ -16,7 +16,7 @@ function cleanVegaDrivers {
     $DduExecutableFullPath)
 
     # Halt script execution if DDU could not be successfully executed
-    if (!test-path $DduExecutableFullPath){
+    if (!(test-path $DduExecutableFullPath)){
         throw 'Error --- could not locate DDU executable!'
     }
 
