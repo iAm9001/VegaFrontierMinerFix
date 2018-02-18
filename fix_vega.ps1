@@ -124,7 +124,7 @@ function ChangeVegaState {
         "$operationType (ed) display adapter $i" | Out-Host
 
         # Sleep for 3 seconds in between each operation
-        Start-Sleep -Seconds 3
+        Start-Sleep -Seconds 3]
         
         $i++
     }
@@ -135,3 +135,33 @@ function ChangeVegaState {
 # Sleep for 2 minutes before resuming script operation...
 Start-Sleep -Seconds 120
 }
+
+#* This function will disable Crossfire and Ulps in your Windows registry on all display adapters
+#* when called.
+function DisableCrossfireUlps {
+
+    'Disabling Crossfire and ULPS on all Vega...' | Out-Host
+
+    # Set the path to your Vega Frontier registry keys here
+    $regKeyPath = 'SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}'
+
+    # Navigate to the Windows Registry
+    Set-Location HKLM:\$regKeyPath
+
+    # Get all registry key paths, ignore errors
+    $keyPaths = Get-ChildItem -ErrorAction SilentlyContinue | Out-Null
+    
+    # Navigate to each Vega Frontier display adapter registry path, that ends with a numbered
+    # display adapter, and disable Crossfire and Ulps.
+    foreach ($k in $keyPaths | Where-Object {$_.name -match '\\[\d]{4}$' } ){
+    Set-Location $k.PSPath | Out-Null    
+    
+    'Disabling Crossfire on ' + $k.PSPath | Out-Host
+    Set-ItemProperty -Path. -Name 'EnableCrossFireAutoLink' -Value 0 | Out-Null
+    
+    'Disabling Ulps on ' + $k.PSPath | Out-Host
+    Set-ItemProperty -Path. -Name 'EnableUlps' -Value 0 | Out-Null
+    
+    'Next...' | Out-Host
+    }
+    }
