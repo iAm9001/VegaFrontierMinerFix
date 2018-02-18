@@ -13,16 +13,22 @@ function cleanVegaDrivers {
     [Alias("PSPath")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $ddu)
+    $DduExecutableFullPath)
 
     # Halt script execution if DDU could not be successfully executed
-    if (!test-path $ddu){
+    if (!test-path $DduExecutableFullPath){
         throw 'Error --- could not locate DDU executable!'
     }
 
+    # Get the parent folder name of the DDU executable
+    $dduParentFolder = [FileInfo]::new($DduExecutableFullPath).DirectoryName
+
     'Cleaning AMD drivers..' | Out-Host
-    Set-Location C:\crypto\ddu 
-    (& $ddu -silent -cleanamd) | Out-Null  #-restart
+
+    # Change current location to DDU executable path...
+    Set-Location $dduParentFolder
+
+    (& $DduExecutableFullPath -silent -cleanamd) | Out-Null  #-restart
     Start-Sleep -Seconds 15
     
     'sleeping for 10 seconds before rebooting after DDU...' | Out-Host
@@ -220,8 +226,8 @@ $credentials = Get-Credential -UserName ($env:COMPUTERNAME.ToString() + '\' + $e
 $AtStartup = New-JobTrigger -AtStartup
 
 # Register the scheduled job
-Register-ScheduledJob -Name Resume_Workflow_Job -Trigger $AtStartup -Credential $credentials -ScriptBlock ({[System.Management.Automation.Remoting.PSSessionConfigurationData]::IsServerManager = $true; Import-Module PSWorkflow; Resume-Job -Name new_resume_workflow_job -Wait}) -ScheduledJobOption $options
+Register-ScheduledJob -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock ({[System.Management.Automation.Remoting.PSSessionConfigurationData]::IsServerManager = $true; Import-Module PSWorkflow; Resume-Job -Name new_resume_workflow_job -Wait}) -ScheduledJobOption $options
 
 # Execute the workflow as a new job
-Resume_Workflow -AsJob -JobName new_resume_workflow_job
+VegaFixWorkflow -AsJob -JobName new_resume_workflow_job
 
