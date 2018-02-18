@@ -194,8 +194,6 @@ workflow VegaFixWorkflow {
     ChangeVegaState -EnableOperation -SkipLastVega
 
     # Finished!
-    'Operation complete.' | Out-Host
-
     return
 }
 # Create the scheduled job properties
@@ -204,7 +202,7 @@ $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartI
 #$secpasswd = ConvertTo-SecureString "yourPasswordHere" -AsPlainText -Force
 
 # Get the credentials of the current user to use for automatic workflow exceution
-$credentials = Get-Credential -UserName ($env:COMPUTERNAME.ToString() + '\' + $env:USERNAME)
+$credentials = Get-Credential -UserName ($env:COMPUTERNAME.ToString() + '\' + $env:USERNAME) -Message 'Enter your curren local machine credentials (hostname\Username)...'
 
 #$credentials = New-Object System.Management.Automation.PSCredential ($env:COMPUTERNAME.ToString() +"\brand", $secpasswd)
 $AtStartup = New-JobTrigger -AtStartup
