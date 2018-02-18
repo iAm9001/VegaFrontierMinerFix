@@ -57,3 +57,41 @@ function installBlockchainDrivers {
     'Pausing for 2 minutes before next operation...' | Out-Host
     start-sleep -Seconds 120
 }
+
+#* Disables all Vega Frontier devices on the system except for the first device at GPU0
+function disableSecondaryVega {
+    'Getting primary Vega...' | Out-Host
+    
+    # Get all Vega frontier display adapters
+	$displays = Get-PnpDevice| Where-Object {$_.friendlyname -like 'Radeon Vega Frontier Edition'}
+    
+    # Establish the primary Vega display adapter from index 0
+    $mainVega = $displays[0]
+    
+    'Primary Vega identified as ' + $mainVega.HardwareID | Out-Host
+
+    # Set the collection of all of the displays to equal itself minus the first isplay
+    $displays = $displays| Where-Object {$_ -ne $mainVega}
+
+    # Initialize counter for console output
+    $i = 1
+    # Loop through each display adapter and disable it
+	foreach ($dev in $displays) {       
+        'Disabling remaining Vegas...' + $i | Out-Host
+        
+        # Perform the display adapter disable operation
+		Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
+        'Disabled ' + $i | Out-Host
+
+        # Sleep for 3 seconds in between each disable operation
+        Start-Sleep -Seconds 3
+        
+        $i++
+	}
+'Finish disabling non-primary Vegas...' | Out-Host
+'Sleeping for 2 minutes before resuming script operation...' | Out-Host
+
+# Sleep for 2 minutes before resuming script operation...
+Start-Sleep -Seconds 120
+}
+
