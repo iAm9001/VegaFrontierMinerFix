@@ -180,8 +180,13 @@ function CleanVegaJobs{
 
     #Cleanup Vega jobs responsible for resuming workflow...
     'Cleaning up Vega jobs...' | Out-Host
+<<<<<<< HEAD
     get-job | Where-Object {$_.Name -like '*vega*'} | stop-job
     get-job | Where-Object {$_.Name -like '*vega*'} | remove-job
+=======
+    get-job | Where-Object {$_.Name -like '*vega*'} | stop-job 
+    get-job | Where-Object {$_.Name -like '*vega*' }| remove-job
+>>>>>>> 4314f396209b2774a68d5bae108ab6c88749bfd2
 
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
