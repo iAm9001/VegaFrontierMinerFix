@@ -278,7 +278,8 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Set the current execution path to the same folder that the script was exeuted from
-Set-Location -LiteralPath [System.IO.FileInfo]::new($PSCommandPath).DirectoryName
+$commandPath = $PSCommandPath.ToString()
+Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath).DirectoryName
 
 # Validate path to miner parameter if it was entered as a command line parameter
 if (!([string]::IsNullOrWhiteSpace($MinerPath))){
@@ -312,7 +313,7 @@ Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $cr
 
 
 # Schedule a task to resume the job
-$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($PSCommandPath).DirectoryName + '\ResumeWF-Job.ps1"'
+$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1"'
 Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
 $act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
 $trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
