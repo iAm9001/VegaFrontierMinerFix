@@ -270,12 +270,10 @@ workflow VegaFixWorkflow {
     return
 }
 
-<<<<<<< HEAD
 # Set the current execution path to the same folder that the script was exeuted from
 #$commandPath = ($PSCommandPath | Out-String).Trim()
 #Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
-=======
->>>>>>> 5cfa0b4b3fde4f68514a0768b83aa0bf312d6b9c
+
 
 # Ensure that the script is being executed with Administrator authority
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
