@@ -281,7 +281,12 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Set the current execution path to the same folder that the script was exeuted from
+<<<<<<< HEAD
 
+=======
+$commandPath = ($PSCommandPath | Out-String).Trim()
+Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
+>>>>>>> 51ad8b7a557533f06ce5f79c9287f2e3ad0911a2
 
 # Validate path to miner parameter if it was entered as a command line parameter
 if (!([string]::IsNullOrWhiteSpace($MinerPath))){
