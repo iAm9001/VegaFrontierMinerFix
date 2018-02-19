@@ -20,7 +20,7 @@ function CleanVegaDrivers {
             ParameterSetName="VegaParams",
             HelpMessage="Literal path to DDU executable...")]
     [Alias("PSPath")]
-    [ValidateNotNullOrEmpty()]
+    [ValidateNotNull]
     [string]
     $DduExecutableFullPath)
 
