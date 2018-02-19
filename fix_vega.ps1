@@ -5,7 +5,7 @@ graphics cards perform adequately for mining with maximum hash rates.
 
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
-function cleanVegaDrivers {
+function CleanVegaDrivers {
     Param(
         [Parameter(Mandatory=$true,
             ParameterSetName="VegaParams",
@@ -37,7 +37,7 @@ function cleanVegaDrivers {
 }
 
 # * This function will install the AMD Adrenaline drivers 
-function installAdrenalineDrivers {
+function InstallAdrenalineDrivers {
     'Installing Adrenaline drivers....' | Out-Host
 
     # Grab only the last device
@@ -53,7 +53,7 @@ function installAdrenalineDrivers {
 }
 
 # * This function will install the AMD Blockchain drivers
-function installBlockchainDrivers {
+function InstallBlockchainDrivers {
 
     'Installing Blockchain drivers...' | Out-Host
     
@@ -179,11 +179,11 @@ function DisableCrossfireUlps {
 workflow VegaFixWorkflow {
     
     # Clean the Vega drivers from your system
-    cleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
+    CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
     Restart-Computer -Force -Wait
 
     # Install the Adrenaline drivers
-    installAdrenalineDrivers
+    InstallAdrenalineDrivers
 
     # Disable Crossfire and Ulps on all cards
     DisableCrossfireUlps
@@ -198,7 +198,7 @@ workflow VegaFixWorkflow {
     ChangeVegaState -EnableOperation -SkipLastVega
 
     # Install Blockchain drivers...
-    installBlockchainDrivers
+    InstallBlockchainDrivers
 
     # Disable Crossfire and Ulps on all cards again, just in case...
     DisableCrossfireUlps
