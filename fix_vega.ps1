@@ -270,6 +270,7 @@ workflow VegaFixWorkflow {
     return
 }
 
+
 # Ensure that the script is being executed with Administrator authority
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
 
@@ -285,6 +286,8 @@ if (!([string]::IsNullOrWhiteSpace($MinerPath))){
     }
 }
 
+# Set the current execution path to the same folder that the script was exeuted from
+$commandPath = ($PSCommandPath | Out-String).Trim()
 
 # Create the scheduled job properties
 $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
