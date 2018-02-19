@@ -122,13 +122,13 @@ function ChangeVegaState {
             Enable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
         }
         else {
-            Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false# | Out-Null
+            Disable-PnpDevice -DeviceId $dev.DeviceID -ErrorAction Ignore -Confirm:$false | Out-Null
         }
 		
         "$operationType (ed) display adapter $i" | Out-Host
 
         # Sleep for 3 seconds in between each operation
-        Start-Sleep -Seconds 3]
+        Start-Sleep -Seconds 3
         
         $i++
     }
