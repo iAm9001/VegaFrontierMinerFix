@@ -173,6 +173,20 @@ function DisableCrossfireUlps {
     }
 }
 
+#* This function will clean up the jobs and scheduled jobs that were created during the operation
+#* of this script.
+
+function CleanVegaJobs{
+
+    #Cleanup Vega jobs responsible for resuming workflow...
+    'Cleaning up Vega jobs...' | Out-Host
+    get-job | Where-Object {$_.Name -like '*vega*'} | stop-job | remove-job
+
+    # Cleanup Vega workflow jobs....
+    'Cleaning up Vega workflows...' | Out-Host
+    Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
+}
+
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
@@ -209,6 +223,9 @@ workflow VegaFixWorkflow {
     # Enable all Vega dispay adapters...
     ChangeVegaState -EnableOperation
 
+    # Clean up jobs and scheduled jobs / workflows...
+    CleanVegaJobs
+
     # Finished!
     return
 }
@@ -228,11 +245,20 @@ $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartI
 # Get the credentials of the current user to use for automatic workflow exceution
 $credentials = Get-Credential -UserName ($env:COMPUTERNAME.ToString() + '\' + $env:USERNAME) -Message 'Enter your curren local machine credentials (hostname\Username)...'
 
+# Define the script block text that will resume the workflow after reboot
+$resumeWorkflowScriptString = '[System.Management.Automation.Remoting.PSSessionConfigurationData]::IsServerManager = $true
+Import-Module PSWorkflow
+Resume-Job -Name ResumeVegaFixWorkflow -Wait'
+
+# Script block to execute responsible for resuming the workflow after rebooting.
+$resumeWorkflowScriptblock = [scriptblock]::Create($resumeWorkflowScriptString)
+
 #$credentials = New-Object System.Management.Automation.PSCredential ($env:COMPUTERNAME.ToString() +"\brand", $secpasswd)
 $AtStartup = New-JobTrigger -AtStartup
 
 # Register the scheduled job
-Register-ScheduledJob -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock ({[System.Management.Automation.Remoting.PSSessionConfigurationData]::IsServerManager = $true; Import-Module PSWorkflow; Resume-Job -Name new_resume_workflow_job -Wait}) -ScheduledJobOption $options
+Register-ScheduledJob -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
 # Execute the workflow as a new job
-VegaFixWorkflow -AsJob -JobName new_resume_workflow_job
+VegaFixWorkflow -AsJob -JobName ResumeVegaFixWorkflow
+
