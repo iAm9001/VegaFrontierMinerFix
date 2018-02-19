@@ -3,6 +3,15 @@ and then begin the process of performing the steps requried to make your Vega Fr
 graphics cards perform adequately for mining with maximum hash rates.
 #> 
 
+Param(
+    [Parameter(Mandatory=$false,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
+    [Alias("Miner")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $MinerPath)
+
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
 function CleanVegaDrivers {
@@ -11,7 +20,7 @@ function CleanVegaDrivers {
             ParameterSetName="VegaParams",
             HelpMessage="Literal path to DDU executable...")]
     [Alias("PSPath")]
-    [ValidateNotNullOrEmpty()]
+    [ValidateNotNullOREmpty()]
     [string]
     $DduExecutableFullPath)
 
@@ -29,8 +38,7 @@ function CleanVegaDrivers {
     Set-Location $dduParentFolder
 
     (& $DduExecutableFullPath -silent -cleanamd) | Out-Null  #-restart
-    Start-Sleep -Seconds 15
-    
+        
     'sleeping for 10 seconds before rebooting after DDU...' | Out-Host
     start-sleep -Seconds 10
     'rebooting...' | Out-Host
@@ -49,7 +57,7 @@ function InstallAdrenalineDrivers {
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Adrenaline drivers complete.' | Out-Host
     'Pausing for 2 minutes before next operations...' | Out-Host
-    Start-Sleep -Seconds 120
+    Start-Sleep -Seconds 30
 }
 
 # * This function will install the AMD Blockchain drivers
@@ -66,7 +74,7 @@ function InstallBlockchainDrivers {
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Blockchain drivers complete.' | Out-Host
     'Pausing for 2 minutes before next operation...' | Out-Host
-    start-sleep -Seconds 120
+    start-sleep -Seconds 30
 }
 
 # * Disables all Vega Frontier devices on the system, or optionall to skip disabling the firt one.
@@ -137,7 +145,7 @@ function ChangeVegaState {
 'Sleeping for 2 minutes before resuming script operation...' | Out-Host
 
 # Sleep for 2 minutes before resuming script operation...
-Start-Sleep -Seconds 120
+Start-Sleep -Seconds 30
 }
 
 #* This function will disable Crossfire and Ulps in your Windows registry on all display adapters
@@ -173,14 +181,56 @@ function DisableCrossfireUlps {
     }
 }
 
+#* This function will clean up the jobs and scheduled jobs that were created during the operation
+#* of this script.
+
+function CleanVegaJobs{
+
+    # Cleanup Vega workflow jobs....
+    'Cleaning up Vega workflows...' | Out-Host
+    Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
+}
+
+# Function to start the miner if a path is provided during startup
+function StartMiner{
+    Param(
+    [Parameter(Mandatory=$true,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
+    [Alias("Miner")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $MinerPath)
+
+    # Get miner file info
+    $minerFileInfo = [System.IO.FileInfo]::new($MinerPath)
+    $minerDirectoryName = $minerFileInfo.DirectoryName
+
+    # Change location to location of miner
+    "Changing location to $minerDirectoryName ..." | Out-Host
+    Set-Location $minerDirectoryName
+
+    # Execute miner...
+    "Executing miner $MinerPath ..." | Out-Host
+    Start-Process -Wait -FilePath $MinerPath
+}
+
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
 workflow VegaFixWorkflow {
-    
+    Param(
+    [Parameter(Mandatory=$false,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
+    [Alias("Miner")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $MinerPath)
+
     # Clean the Vega drivers from your system
     CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
-    Restart-Computer -Force -Wait
+    Restart-Computer -Wait
 
     # Install the Adrenaline drivers
     InstallAdrenalineDrivers
@@ -209,9 +259,21 @@ workflow VegaFixWorkflow {
     # Enable all Vega dispay adapters...
     ChangeVegaState -EnableOperation
 
+    # Clean up jobs and scheduled jobs / workflows...
+    CleanVegaJobs
+
+    # If the miner path was provided, start the miner in a new process.
+    if ($MinerPath){
+        StartMiner -MinerPath $MinerPath
+    }
     # Finished!
     return
 }
+
+# Set the current execution path to the same folder that the script was exeuted from
+#$commandPath = ($PSCommandPath | Out-String).Trim()
+#Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
+
 
 # Ensure that the script is being executed with Administrator authority
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
@@ -219,6 +281,17 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
 }
+
+
+# Validate path to miner parameter if it was entered as a command line parameter
+if (!([string]::IsNullOrWhiteSpace($MinerPath))){
+    if (!(test-path $MinerPath)){
+        throw 'The path provided to your mining software was invalid.  Please fix or remove.'
+    }
+}
+
+# Set the current execution path to the same folder that the script was exeuted from
+$commandPath = ($PSCommandPath | Out-String).Trim()
 
 # Create the scheduled job properties
 $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
@@ -228,11 +301,36 @@ $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartI
 # Get the credentials of the current user to use for automatic workflow exceution
 $credentials = Get-Credential -UserName ($env:COMPUTERNAME.ToString() + '\' + $env:USERNAME) -Message 'Enter your curren local machine credentials (hostname\Username)...'
 
+# Define the script block text that will resume the workflow after reboot
+$resumeWorkflowScriptString = '[System.Management.Automation.Remoting.PSSessionConfigurationData]::IsServerManager = $true
+Import-Module PSWorkflow
+Resume-Job -Name ResumeVegaFixWorkflow -Wait'
+
+# Script block to execute responsible for resuming the workflow after rebooting.
+$resumeWorkflowScriptblock = [scriptblock]::Create($resumeWorkflowScriptString)
+
 #$credentials = New-Object System.Management.Automation.PSCredential ($env:COMPUTERNAME.ToString() +"\brand", $secpasswd)
-$AtStartup = New-JobTrigger -AtStartup
+$AtStartup = New-JobTrigger -AtLogOn
 
 # Register the scheduled job
-Register-ScheduledJob -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock ({[System.Management.Automation.Remoting.PSSessionConfigurationData]::IsServerManager = $true; Import-Module PSWorkflow; Resume-Job -Name new_resume_workflow_job -Wait}) -ScheduledJobOption $options
+Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
-# Execute the workflow as a new job
-VegaFixWorkflow -AsJob -JobName new_resume_workflow_job
+
+# Schedule a task to resume the job
+#$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1"'
+#Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+#$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
+#$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
+#Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
+
+# Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
+if ($MinerPath){
+    # Execute the workflow as a new job with the miner path provided after
+    VegaFixWorkflow -MinerPath $MinerPath -AsJob -JobName ResumeVegaFixWorkflow
+}
+else {
+    # Execute the workflow as a new job
+    VegaFixWorkflow -AsJob -JobName ResumeVegaFixWorkflow
+}
+
+
