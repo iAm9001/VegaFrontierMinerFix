@@ -3,6 +3,15 @@ and then begin the process of performing the steps requried to make your Vega Fr
 graphics cards perform adequately for mining with maximum hash rates.
 #> 
 
+Param(
+    [Parameter(Mandatory=$false,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
+    [Alias("Miner")]
+    [ValidateNotNullOrEmpty]
+    [string]
+    $MinerPath)
+
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
 function CleanVegaDrivers {
@@ -187,14 +196,35 @@ function CleanVegaJobs{
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
 }
 
+function StartMiner{
+    Param(
+    [Parameter(Mandatory=$true,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
+    [Alias("Miner")]
+    [ValidateNotNullOrEmpty]
+    [string]
+    $MinerPath)
+
+    Start-Process -Wait -FilePath $MinerPath
+}
+
 
 #* This is a workflow that will execute in the background after windows reboots to resume the Vega display adapter
 #* repair process.
 workflow VegaFixWorkflow {
-    
+    Param(
+    [Parameter(Mandatory=$false,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
+    [Alias("Miner")]
+    [ValidateNotNullOrEmpty]
+    [string]
+    $MinerPath)
+
     # Clean the Vega drivers from your system
     CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
-    Restart-Computer -Force -Wait
+    Restart-Computer -Wait
 
     # Install the Adrenaline drivers
     InstallAdrenalineDrivers
@@ -226,6 +256,10 @@ workflow VegaFixWorkflow {
     # Clean up jobs and scheduled jobs / workflows...
     CleanVegaJobs
 
+    # If the miner path was provided, start the miner in a new process.
+    if ($MinerPath){
+        StartMiner -MinerPath $MinerPath
+    }
     # Finished!
     return
 }
@@ -235,6 +269,13 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
+}
+
+# Validate path to miner parameter if it was entered as a command line parameter
+if (!([string]::IsNullOrWhiteSpace($MinerPath))){
+    if (!(test-path $MinerPath)){
+        throw 'The path provided to your mining software was invalid.  Please fix or remove.'
+    }
 }
 
 # Create the scheduled job properties
@@ -259,6 +300,14 @@ $AtStartup = New-JobTrigger -AtStartup
 # Register the scheduled job
 Register-ScheduledJob -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
-# Execute the workflow as a new job
-VegaFixWorkflow -AsJob -JobName ResumeVegaFixWorkflow
+# Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
+if ($MinerPath){
+    # Execute the workflow as a new job with the miner path provided after
+    VegaFixWorkflow -MinerPath $MinerPath -AsJob -JobName ResumeVegaFixWorkflow
+}
+else {
+    # Execute the workflow as a new job
+    VegaFixWorkflow -AsJob -JobName ResumeVegaFixWorkflow
+}
+
 
