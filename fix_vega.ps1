@@ -271,19 +271,20 @@ workflow VegaFixWorkflow {
 }
 
 # Ensure that the script is being executed with Administrator authority
-If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+<#If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
 
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
 }
+#>
 
 # Validate path to miner parameter if it was entered as a command line parameter
-<#if (!([string]::IsNullOrWhiteSpace($MinerPath))){
+if (!([string]::IsNullOrWhiteSpace($MinerPath))){
     if (!(test-path $MinerPath)){
         throw 'The path provided to your mining software was invalid.  Please fix or remove.'
     }
 }
-#>
+
 
 # Create the scheduled job properties
 $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
