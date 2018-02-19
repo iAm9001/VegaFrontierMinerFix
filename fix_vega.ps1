@@ -271,8 +271,8 @@ workflow VegaFixWorkflow {
 }
 
 # Set the current execution path to the same folder that the script was exeuted from
-$commandPath = ($PSCommandPath | Out-String).Trim()
-Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
+#$commandPath = ($PSCommandPath | Out-String).Trim()
+#Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
 
 # Ensure that the script is being executed with Administrator authority
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
@@ -314,11 +314,11 @@ Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $cr
 
 
 # Schedule a task to resume the job
-$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1"'
-Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
-$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
-$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
-Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
+#$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1"'
+#Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+#$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
+#$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
+#Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
 
 # Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
 if ($MinerPath){
