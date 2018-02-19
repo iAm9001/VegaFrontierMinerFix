@@ -29,11 +29,17 @@ Please take note that this script is functional, but it requies a little bit of 
 3. Download the Display Driver Uninstaller setup and extract it to the folder of your choosing.
 4. Download the Powershell script in this repo, and place it in the folder of your choosing.
 5. Modify the script at approximately line 182 and replace the path with the full path of the DDU executable that you extracted in step # 3:  `cleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'`
+
 6. Run the script, you will be required to run it as administrator.
+
 7. You will be prompted to enter your local Windows credentials.  You can examine the script to ensure that it is safe; you will be required to enter them in NTAccountName format (domain\username).  I have taken the liberty of having this pre-populate for you.
+
 8. Once you press enter, DDU will uninstall all of your AMD graphcis drivers, and initiate a restart.
+
 9. Upon restarting, you will need to log back into WIndows, and start a new Powershell instance as Administrator.  *Note:  This step will be automated in the future, but for now it must be done manually*
+
 10. Once the Powershell instance has loaded, type `get-job`.  Take note of the *suspended* job called **VegaFixWorkflow**, and type `resume-job -Id <Job Id>*`
+
 11. Go grab a coffee, the process of installing the Adrenaline drivers, Blockchain drivers, disabling of Crossfire and Ulps, disabling and enabling the display adapters in the appropriate sequence will begin.  *Note:*  There is no indicator to the status of the completion level of the scripts operation.  I am once again working on this, and just happy to have the process nearly completely automated.
 
 ## Notes
