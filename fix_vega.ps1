@@ -196,6 +196,7 @@ function CleanVegaJobs{
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
 }
 
+# Function to start the miner if a path is provided during startup
 function StartMiner{
     Param(
     [Parameter(Mandatory=$true,
