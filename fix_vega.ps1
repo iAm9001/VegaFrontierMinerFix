@@ -128,7 +128,7 @@ function ChangeVegaState {
         "$operationType (ed) display adapter $i" | Out-Host
 
         # Sleep for 3 seconds in between each operation
-        Start-Sleep -Seconds 3]
+        Start-Sleep -Seconds 3
         
         $i++
     }
