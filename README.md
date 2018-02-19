@@ -28,9 +28,7 @@ Please take note that this script is functional, but it requies a little bit of 
 2. Download both the Adrenaline and Blockchain drivers, and run the executables.  **DO NOT INSTALL THEM** using the AMD provided GUI; simple extract them to the **DEFAULT** location, and move on to step three.
 3. Download the Display Driver Uninstaller setup and extract it to the folder of your choosing.
 4. Download the Powershell script in this repo, and place it in the folder of your choosing.
-5. Modify the script at approximately line 182 and replace the path with the full path of the DDU executable that you extracted in step # 3.
-`
-    cleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'`
+5. Modify the script at approximately line 182 and replace the path with the full path of the DDU executable that you extracted in step # 3:  `cleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'`
 6. Run the script, you will be required to run it as administrator.
 7. You will be prompted to enter your local Windows credentials.  You can examine the script to ensure that it is safe; you will be required to enter them in NTAccountName format (domain\username).  I have taken the liberty of having this pre-populate for you.
 8. Once you press enter, DDU will uninstall all of your AMD graphcis drivers, and initiate a restart.
