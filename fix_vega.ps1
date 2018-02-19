@@ -186,11 +186,6 @@ function DisableCrossfireUlps {
 
 function CleanVegaJobs{
 
-    #Cleanup Vega jobs responsible for resuming workflow...
-    'Cleaning up Vega jobs...' | Out-Host
-    get-job | Where-Object {$_.Name -like '*vega*'} | stop-job
-    get-job | Where-Object {$_.Name -like '*vega*'} | remove-job
-
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
