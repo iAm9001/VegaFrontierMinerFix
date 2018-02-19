@@ -207,6 +207,16 @@ function StartMiner{
     [string]
     $MinerPath)
 
+    # Get miner file info
+    $minerFileInfo = [System.IO.FileInfo]::new($MinerPath)
+    $minerDirectoryName = $minerFileInfo.DirectoryName
+
+    # Change location to location of miner
+    "Changing location to $minerDirectoryName ..." | Out-Host
+    Set-Location $minerDirectoryName
+
+    # Execute miner...
+    "Executing miner $MinerPath ..." | Out-Host
     Start-Process -Wait -FilePath $MinerPath
 }
 
