@@ -273,11 +273,12 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Validate path to miner parameter if it was entered as a command line parameter
-if (!([string]::IsNullOrWhiteSpace($MinerPath))){
+<#if (!([string]::IsNullOrWhiteSpace($MinerPath))){
     if (!(test-path $MinerPath)){
         throw 'The path provided to your mining software was invalid.  Please fix or remove.'
     }
 }
+#>
 
 # Create the scheduled job properties
 $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
