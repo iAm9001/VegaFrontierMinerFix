@@ -8,7 +8,7 @@ Param(
     ParameterSetName="StartupParams",
     HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
     [Alias("Miner")]
-    [ValidateNotNullOrEmpty]
+    [ValidateNotNull]
     [string]
     $MinerPath)
 
@@ -203,7 +203,7 @@ function StartMiner{
     ParameterSetName="StartupParams",
     HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
     [Alias("Miner")]
-    [ValidateNotNullOrEmpty]
+    [ValidateNotNull]
     [string]
     $MinerPath)
 
@@ -219,7 +219,7 @@ workflow VegaFixWorkflow {
     ParameterSetName="StartupParams",
     HelpMessage="Set the path to your mining executable to begin your miner after the operation has completed.")]
     [Alias("Miner")]
-    [ValidateNotNullOrEmpty]
+    [ValidateNotNull]
     [string]
     $MinerPath)
 
