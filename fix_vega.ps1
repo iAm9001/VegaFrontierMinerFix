@@ -37,7 +37,8 @@ function CleanVegaDrivers {
     # Change current location to DDU executable path...
     Set-Location $dduParentFolder
 
-    (& $DduExecutableFullPath -silent -cleanamd) | Out-Null  #-restart
+    Start-Process -FilePath $DduExecutableFullPath -ArgumentList @('-silent', '-cleanamd') -Wait
+   # (& $DduExecutableFullPath -silent -cleanamd) | Out-Null  #-restart
         
     'sleeping for 10 seconds before rebooting after DDU...' | Out-Host
     start-sleep -Seconds 10
