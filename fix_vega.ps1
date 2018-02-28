@@ -10,7 +10,14 @@ Param(
     [Alias("Miner")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $MinerPath)
+    $MinerPath,
+    [Parameter(Mandatory=$false,
+    ParameterSetName="StartupParams",
+    HelpMessage="Set the path to your script execution; for internal use.")]
+    [Alias("AdminPath")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $AdminScriptPath)
 
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
@@ -278,14 +285,28 @@ workflow VegaFixWorkflow {
 #$commandPath = ($PSCommandPath | Out-String).Trim()
 #Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
 
+if ($AdminScriptPath){
+    try {
+
+    Set-Location $AdminScriptPath
+}
+    catch { throw 'Invalid admin script path location'}
+}
 
 # Ensure that the script is being executed with Administrator authority
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+    $dirName = (Get-Location).Path
 
-	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
-	Exit
+    $argsString = ''
+    
+    if ($MinerPath){
+        $argsString += '-MinerPath ' + $dirName + ' '
+    }
+    $argsString += '-AdminPath ' + $dirName
+    $argsString | Out-Host
+
+    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $argsString" -Verb RunAs -Wait
 }
-
 
 # Validate path to miner parameter if it was entered as a command line parameter
 if (!([string]::IsNullOrWhiteSpace($MinerPath))){
@@ -293,7 +314,6 @@ if (!([string]::IsNullOrWhiteSpace($MinerPath))){
         throw 'The path provided to your mining software was invalid.  Please fix or remove.'
     }
 }
-
 # Clean up any stray jobs before execution begins
 CleanVegaJobs
 
