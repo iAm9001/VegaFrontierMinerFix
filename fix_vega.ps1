@@ -328,10 +328,15 @@ Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $cr
 
 # Schedule a task to resume the job
 $resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + $resumeWFTaskScript.FullName
+
+# Remove any stray scheduled tasks from previous runs
 Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+
 $act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
 $trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
 Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
+
+throw 'temporarily throwing exception for testing purposes'
 
 # Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
 if ($MinerPath){
