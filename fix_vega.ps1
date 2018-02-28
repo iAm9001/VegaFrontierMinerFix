@@ -339,8 +339,6 @@ $act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v
 $trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
 Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
 
-throw 'temporarily throwing exception for testing purposes'
-
 # Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
 if ($MinerPath){
     # Execute the workflow as a new job with the miner path provided after
