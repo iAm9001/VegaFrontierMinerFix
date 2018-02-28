@@ -364,7 +364,7 @@ Resume-Job -Name ResumeVegaFixWorkflow -Wait'
 $resumeWorkflowScriptblock = [scriptblock]::Create($resumeWorkflowScriptString)
 
 #$credentials = New-Object System.Management.Automation.PSCredential ($env:COMPUTERNAME.ToString() +"\brand", $secpasswd)
-$AtStartup = New-JobTrigger -AtLogOn
+$AtStartup = New-JobTrigger -AtStartup
 
 'registering job...' | Out-Host
 # Register the scheduled job
@@ -379,7 +379,7 @@ Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unre
 
 'scheduling resume task...' | Out-Host
 $act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
-$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
+$trig = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:00:55
 Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
 
 
