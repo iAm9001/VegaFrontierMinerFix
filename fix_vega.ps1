@@ -190,6 +190,9 @@ function CleanVegaJobs{
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
+
+    # Remove any stray scheduled tasks from previous runs
+    Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
 }
 
 # Function to start the miner if a path is provided during startup
@@ -327,7 +330,7 @@ $AtStartup = New-JobTrigger -AtLogOn
 Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
 # Schedule a task to resume the job
-$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + $resumeWFTaskScript.FullName
+$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + $resumeWFTaskScript.FullName + '"'
 
 # Remove any stray scheduled tasks from previous runs
 Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
