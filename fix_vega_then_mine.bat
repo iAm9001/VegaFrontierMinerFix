@@ -1,0 +1,1 @@
+powershell.exe -file "fix_vega.ps1" -MinerPath c:\miner\miner.bat
