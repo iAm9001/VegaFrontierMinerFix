@@ -190,7 +190,8 @@ function CleanVegaJobs{
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
-
+    Get-Job | Where-Object {$_.Name -like '*vega*'} | Stop-Job
+    Get-Job | Where-Object {$_.Name -like '*vega*'} | Remove-Job
     }
 
 function CleanScheduledTask{
@@ -268,15 +269,17 @@ workflow VegaFixWorkflow {
     # Enable all Vega dispay adapters...
     ChangeVegaState -EnableOperation
 
-    # Clean up jobs and scheduled jobs / workflows...
-    CleanVegaJobs
-
     # If the miner path was provided, start the miner in a new process.
     if ($MinerPath){
         StartMiner -MinerPath $MinerPath
     }
 
+    # Clean up jobs and scheduled jobs / workflows...
+    CleanVegaJobs
+    
+    # Remove teh scheduled task that runs the workflow on logon
     CleanScheduledTask
+
     # Finished!
     return
 }
@@ -376,8 +379,3 @@ else {
 '(remember, you can also execute this script with the -MinerPath parameter to ' | Out-Host
 'also have this script restart your miner upon reboot! ie. ' | Out-Host
 'fix_vega.ps1 -MinerPath c:\miner\miner.bat' | Out-Host 
-
-$j = Get-Job -Name ResumeVegaFixWorkflow | Select-Object -Index 0
-Wait-Job $j
-
-'Initial job now being suspended, rebooting...' | Out-Host
