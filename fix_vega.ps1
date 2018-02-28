@@ -10,14 +10,7 @@ Param(
     [Alias("Miner")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $MinerPath,
-    [Parameter(Mandatory=$false,
-    ParameterSetName="StartupParams",
-    HelpMessage="Set the path to your script execution; for internal use.")]
-    [Alias("AdminPath")]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $AdminScriptPath)
+    $MinerPath)
 
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
@@ -299,18 +292,22 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     
     if ($MinerPath){
         $argsString += '-MinerPath ' + $dirName + ' '
-    }
-    $argsString += '-AdminPath ' + $dirName
-    $argsString | Out-Host
 
+        'Miner path ' + $MinerPath + ' specified during script launch... miner will automatically launch upon process completion.' | Out-Host
+    }
+    
+    # Start the process as administrator
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $argsString" -Verb RunAs -Wait
     exit
     return
 }
 
+# Set script to enter the path where the .ps1 file was extracted to (and executed from).  Fixes problems encountered when right click + run with powershell
+# is performed
 $scriptDir = [System.IO.FileInfo]::new($PSCommandPath).DirectoryName
 Set-Location -LiteralPath $scriptDir
 
+# 
 if ($AdminScriptPath){
     try {
 
