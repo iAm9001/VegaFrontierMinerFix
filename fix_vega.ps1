@@ -327,7 +327,7 @@ $AtStartup = New-JobTrigger -AtLogOn
 Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
 # Schedule a task to resume the job
-$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1'
+$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + $resumeWFTaskScript.FullName
 Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
 $act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
 $trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
