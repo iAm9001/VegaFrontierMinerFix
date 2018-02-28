@@ -189,9 +189,9 @@ function CleanVegaJobs{
 
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
-    Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
     Get-Job | Where-Object {$_.Name -like '*vega*'} | Stop-Job
     Get-Job | Where-Object {$_.Name -like '*vega*'} | Remove-Job
+    Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
     }
 
 function CleanScheduledTask{
