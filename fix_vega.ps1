@@ -294,6 +294,13 @@ if (!([string]::IsNullOrWhiteSpace($MinerPath))){
 # Clean up any stray jobs before execution begins
 CleanVegaJobs
 
+# Make positive ID on ResumeWF-Job.ps1 and leverage FullName property to pass to -File attribute on resumeActionSCript
+$resumeWFTaskScript = Get-ChildItem -File 'ResumeWF-Job.ps1'
+
+if ($null -eq $resumeWFTaskScript -or $resumeWFTaskScript -isnot [System.IO.FileInfo]){
+    throw 'Error:  was unable to locate the required script to resume workflow - ResumeWF-Job.ps1'
+} 
+
 # Set the current execution path to the same folder that the script was exeuted from
 $commandPath = ($PSCommandPath | Out-String).Trim()
 
@@ -319,13 +326,12 @@ $AtStartup = New-JobTrigger -AtLogOn
 # Register the scheduled job
 Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
-
 # Schedule a task to resume the job
-#$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1"'
-#Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
-#$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
-#$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
-#Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
+$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1'
+Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
+$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
+Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
 
 # Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
 if ($MinerPath){
