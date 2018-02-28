@@ -11,14 +11,6 @@ Param(
     [ValidateNotNullOrEmpty()]
     [string]
     $MinerPath)
-# Check for the existance of DDU at the path provided...
-if (!(Test-Path $DduExecutableFullPath)){
-
-    # Throw an exception if the DDU executable path cannot be found.
-   throw 'Error --- this script cannot properly function without first executing DDU.  Please correct the path to the EXE and try again.' | Out-Host
-}
-
-
 
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
