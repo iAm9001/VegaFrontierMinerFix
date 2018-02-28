@@ -291,6 +291,9 @@ if (!([string]::IsNullOrWhiteSpace($MinerPath))){
     }
 }
 
+# Clean up any stray jobs before execution begins
+CleanVegaJobs
+
 # Set the current execution path to the same folder that the script was exeuted from
 $commandPath = ($PSCommandPath | Out-String).Trim()
 
