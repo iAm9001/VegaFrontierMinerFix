@@ -12,6 +12,18 @@ Param(
     [string]
     $MinerPath)
 
+# * Set the Display Driver Uninstaller (DDU) full EXE path
+$DduExecutableFullPath = 'C:\crypto\ddu\Display Driver Uninstaller.exe'
+
+# Check for the existance of DDU at the path provided...
+if (!(Test-Path $DduExecutableFullPath)){
+
+    # Throw an exception if the DDU executable path cannot be found.
+   throw 'Error --- this script cannot properly function without first executing DDU.  Please correct the path to the EXE and try again.' | Out-Host
+}
+
+
+
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
 function CleanVegaDrivers {
@@ -237,7 +249,7 @@ workflow VegaFixWorkflow {
     $MinerPath)
 
     # Clean the Vega drivers from your system
-    CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
+    CleanVegaDrivers -ddu $dduExeFullPath
     Restart-Computer -Wait
 
     # Install the Adrenaline drivers
