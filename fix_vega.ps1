@@ -12,6 +12,18 @@ Param(
     [string]
     $MinerPath)
 
+# * Set the Display Driver Uninstaller (DDU) full EXE path
+$DduExecutableFullPath = 'C:\crypto\ddu\Display Driver Uninstaller.exe'
+
+# Check for the existance of DDU at the path provided...
+if (!(Test-Path $DduExecutableFullPath)){
+
+    # Throw an exception if the DDU executable path cannot be found.
+   throw 'Error --- this script cannot properly function without first executing DDU.  Please correct the path to the EXE and try again.' | Out-Host
+}
+
+
+
 # * This function will clean your AMD drivers from your system, without initiating a reboot.
 # * The rebooting operation will be handled via a workflow job instead.
 function CleanVegaDrivers {
@@ -190,6 +202,13 @@ function CleanVegaJobs{
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
+
+    }
+
+function CleanScheduledTask{
+    # Remove any stray scheduled tasks from previous runs
+    Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+
 }
 
 # Function to start the miner if a path is provided during startup
@@ -230,7 +249,7 @@ workflow VegaFixWorkflow {
     $MinerPath)
 
     # Clean the Vega drivers from your system
-    CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
+    CleanVegaDrivers -ddu $dduExeFullPath
     Restart-Computer -Wait
 
     # Install the Adrenaline drivers
@@ -267,6 +286,8 @@ workflow VegaFixWorkflow {
     if ($MinerPath){
         StartMiner -MinerPath $MinerPath
     }
+
+    CleanScheduledTask
     # Finished!
     return
 }
@@ -275,24 +296,56 @@ workflow VegaFixWorkflow {
 #$commandPath = ($PSCommandPath | Out-String).Trim()
 #Set-Location -LiteralPath [System.IO.FileInfo]::new($commandPath.Trim()).DirectoryName
 
-
 # Ensure that the script is being executed with Administrator authority
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+    $dirName = (Get-Location).Path
 
-	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
-	Exit
+    $argsString = ''
+    
+    if ($MinerPath){
+        $argsString += '-MinerPath ' + $dirName + ' '
+
+        'Miner path ' + $MinerPath + ' specified during script launch... miner will automatically launch upon process completion.' | Out-Host
+    }
+    
+    # Start the process as administrator
+    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $argsString" -Verb RunAs -Wait
+    exit
+    return
 }
 
+# Set script to enter the path where the .ps1 file was extracted to (and executed from).  Fixes problems encountered when right click + run with powershell
+# is performed
+$scriptDir = [System.IO.FileInfo]::new($PSCommandPath).DirectoryName
+Set-Location -LiteralPath $scriptDir
+
+# 
+if ($AdminScriptPath){
+    try {
+
+    Set-Location $AdminScriptPath
+    'Location (as admin) set to ' + $AdminScriptPath | Out-Host
+}
+    catch { throw 'Invalid admin script path location'}
+}
 
 # Validate path to miner parameter if it was entered as a command line parameter
 if (!([string]::IsNullOrWhiteSpace($MinerPath))){
     if (!(test-path $MinerPath)){
+        'Error - mining script provided does not exist...' | Out-Host
+        Read-Host
         throw 'The path provided to your mining software was invalid.  Please fix or remove.'
     }
 }
+# Clean up any stray jobs before execution begins
+CleanVegaJobs
 
-# Set the current execution path to the same folder that the script was exeuted from
-$commandPath = ($PSCommandPath | Out-String).Trim()
+# Make positive ID on ResumeWF-Job.ps1 and leverage FullName property to pass to -File attribute on resumeActionSCript
+$resumeWFTaskScript = Get-ChildItem -File 'ResumeWF-Job.ps1'
+
+if ($null -eq $resumeWFTaskScript -or $resumeWFTaskScript -isnot [System.IO.FileInfo]){
+    throw 'Error:  was unable to locate the required script to resume workflow - ResumeWF-Job.ps1'
+} 
 
 # Create the scheduled job properties
 $options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
@@ -313,16 +366,22 @@ $resumeWorkflowScriptblock = [scriptblock]::Create($resumeWorkflowScriptString)
 #$credentials = New-Object System.Management.Automation.PSCredential ($env:COMPUTERNAME.ToString() +"\brand", $secpasswd)
 $AtStartup = New-JobTrigger -AtLogOn
 
+'registering job...' | Out-Host
 # Register the scheduled job
 Register-ScheduledJob  -Name VegaFixWorkflow -Trigger $AtStartup -Credential $credentials -ScriptBlock $resumeWorkflowScriptblock -ScheduledJobOption $options
 
-
 # Schedule a task to resume the job
-#$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + [System.IO.FileInfo]::new($commandPath).DirectoryName + '\ResumeWF-Job.ps1"'
-#Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
-#$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
-#$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
-#Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
+$resumeActionscript = '-WindowStyle Normal -NoLogo -NoProfile -File "' + $resumeWFTaskScript.FullName + '"'
+
+'killing scheduled tasks...' | Out-Host
+# Remove any stray scheduled tasks from previous runs
+Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+
+'scheduling resume task...' | Out-Host
+$act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
+$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
+Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
+
 
 # Execute the workflow either with the miner auto-launch, or without depending on whether a path was provided
 if ($MinerPath){
@@ -334,4 +393,12 @@ else {
     VegaFixWorkflow -AsJob -JobName ResumeVegaFixWorkflow
 }
 
+'Powershell workflow initiated... will reboot and resume script operation' | Out-Host
+'(remember, you can also execute this script with the -MinerPath parameter to ' | Out-Host
+'also have this script restart your miner upon reboot! ie. ' | Out-Host
+'fix_vega.ps1 -MinerPath c:\miner\miner.bat' | Out-Host 
 
+$j = Get-Job -Name ResumeVegaFixWorkflow | Select-Object -Index 0
+Wait-Job $j
+
+'Initial job now being suspended, rebooting...' | Out-Host
