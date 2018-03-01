@@ -21,6 +21,9 @@ This is a Powershell script that automates the process of fixing the Vega Fronti
 ### Vega Frontier Edition Graphics Cards
 This script is intended for usage to fix the dreaded hash rate drop with the Vega Frontier Edition cards from AMD.  They are the most powerful (as far as affordability goes) graphics cards for mining Cryptonight, but if you need to restart your computer or it crashes.... you may spend countless hours fiddling around with reinstallation of drivers.
 
+### Demonstration Video Available on YouTube!
+You view a demonstration video of this script in action here: [VegaFrontierMinerFix](https://www.youtube.com/watch?v=j9AGUGSHTs8 "Vega Frontier Miner Fix!")
+
 ## Instructions
 Please take note that this script is functional, but it requies a little bit of special care (and patience).  I have created it for my own personal use but am more than happy to share it (obviously; because here you are).
 
