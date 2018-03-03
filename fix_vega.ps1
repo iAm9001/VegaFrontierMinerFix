@@ -57,8 +57,8 @@ function InstallAdrenalineDrivers {
     
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Adrenaline drivers complete.' | Out-Host
-    'Pausing for 2 minutes before next operations...' | Out-Host
-    Start-Sleep -Seconds 30
+    'Pausing for 10 seconds before next operations...' | Out-Host
+    Start-Sleep -Seconds 10
 }
 
 # * This function will install the AMD Blockchain drivers
@@ -75,7 +75,7 @@ function InstallBlockchainDrivers {
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Blockchain drivers complete.' | Out-Host
     'Pausing for 2 minutes before next operation...' | Out-Host
-    start-sleep -Seconds 30
+    start-sleep -seconds 10
 }
 
 # * Disables all Vega Frontier devices on the system, or optionall to skip disabling the firt one.
@@ -146,7 +146,7 @@ function ChangeVegaState {
 'Sleeping for 2 minutes before resuming script operation...' | Out-Host
 
 # Sleep for 2 minutes before resuming script operation...
-Start-Sleep -Seconds 30
+Start-Sleep -seconds 10
 }
 
 #* This function will disable Crossfire and Ulps in your Windows registry on all display adapters
