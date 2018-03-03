@@ -217,7 +217,14 @@ function StartMiner{
 
     # Change location to location of miner
     "Changing location to $minerDirectoryName ..." | Out-Host
-    Set-Location $minerDirectoryName
+    try { 
+        Set-Location $minerDirectoryName
+    }
+    catch [System.Exception] {
+        $errMsg =  ([DateTime]::Now.ToString() + 'Error - failed to change directory to ' + $minerDirectoryName + ' -- error was ' + $_.Exception.Message + '`r`n')
+        $errMsg | Out-Host
+        $errMsg | Out-File 'vega-script-errors.txt' -Encoding utf8 -Append
+    }
 
     # Execute miner...
     "Executing miner $MinerPath ..." | Out-Host
