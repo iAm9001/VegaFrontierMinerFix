@@ -31,7 +31,7 @@ Please take note that this script is functional, but it requies a little bit of 
 2. Download both the Adrenaline and Blockchain drivers, and run the executables.  **DO NOT INSTALL THEM** using the AMD provided GUI; simple extract them to the **DEFAULT** location, and move on to step three.
 3. Download the Display Driver Uninstaller setup and extract it to the folder of your choosing.
 4. Download the entire repo, and extract it to any folder you like (all files must remain grouped together though)
-5. Modify the script at approximately line 242 and replace with the full path of the DDU executable that you extracted in step # 3.
+5. Modify the script at approximately line 249 and replace with the full path of the DDU executable that you extracted in step # 3.
 6. Run the script, you will be required to run it as administrator (you can also pass in the -MinerPath parameter to tell the script to execute your mining software executable or batch file upon completion).
 7. You will be prompted to enter your local Windows credentials.  You can examine the script to ensure that it is safe; you will be required to enter them in NTAccountName format (domain\username).  I have taken the liberty of having this pre-populate for you.
 8. Once you press enter, the process of optimizing your VEGA setup will begin.
