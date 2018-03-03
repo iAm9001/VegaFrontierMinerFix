@@ -247,7 +247,7 @@ workflow VegaFixWorkflow {
     # * Set the Display Driver Uninstaller (DDU) full EXE path
     # Clean the Vega drivers from your system
     CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
-    Restart-Computer -Wait
+    Restart-Computer -Force -Wait
 
     # Install the Adrenaline drivers
     InstallAdrenalineDrivers
