@@ -223,12 +223,21 @@ function StartMiner{
     catch [System.Exception] {
         $errMsg =  ([DateTime]::Now.ToString() + 'Error - failed to change directory to ' + $minerDirectoryName + ' -- error was ' + $_.Exception.Message + '`r`n')
         $errMsg | Out-Host
-        $errMsg | Out-File 'vega-script-errors.txt' -Encoding utf8 -Append
+        $errMsg | Out-File 'log.txt' -Encoding utf8 -Append
     }
 
     # Execute miner...
     "Executing miner $MinerPath ..." | Out-Host
-    Start-Process -Wait -FilePath $MinerPath
+    try {
+        ([DateTime]::Now.ToString() + ' - miner execution beginning...') | Out-File log.txt -Encoding utf8 -Append
+
+    }
+    catch [System.Exception] {
+        ([DateTime]::Now.ToString() + ' - miner execution failed....' +  $_.Exception.Message) | Out-File log.txt -Encoding utf8 -Append
+    }
+    Start-Process -FilePath $MinerPath
+
+    Start-Sleep -Seconds 15
 }
 
 
