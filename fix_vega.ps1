@@ -41,7 +41,7 @@ function CleanVegaDrivers {
    # (& $DduExecutableFullPath -silent -cleanamd) | Out-Null  #-restart
         
     'sleeping for 10 seconds before rebooting after DDU...' | Out-Host
-    Start-Sleep -Seconds 30
+    start-sleep -Seconds 10
     'rebooting...' | Out-Host
 }
 
@@ -57,7 +57,7 @@ function InstallAdrenalineDrivers {
     
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Adrenaline drivers complete.' | Out-Host
-    'Pausing for 10 seconds before next operations...' | Out-Host
+    'Pausing for 2 minutes before next operations...' | Out-Host
     Start-Sleep -Seconds 30
 }
 
@@ -75,7 +75,7 @@ function InstallBlockchainDrivers {
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Blockchain drivers complete.' | Out-Host
     'Pausing for 2 minutes before next operation...' | Out-Host
-    Start-Sleep -Seconds 30
+    start-sleep -Seconds 30
 }
 
 # * Disables all Vega Frontier devices on the system, or optionall to skip disabling the firt one.
@@ -217,27 +217,11 @@ function StartMiner{
 
     # Change location to location of miner
     "Changing location to $minerDirectoryName ..." | Out-Host
-    try { 
-        Set-Location $minerDirectoryName
-    }
-    catch [System.Exception] {
-        $errMsg =  ([DateTime]::Now.ToString() + 'Error - failed to change directory to ' + $minerDirectoryName + ' -- error was ' + $_.Exception.Message + '`r`n')
-        $errMsg | Out-Host
-        $errMsg | Out-File 'log.txt' -Encoding utf8 -Append
-    }
+    Set-Location $minerDirectoryName
 
     # Execute miner...
     "Executing miner $MinerPath ..." | Out-Host
-    try {
-        ([DateTime]::Now.ToString() + ' - miner execution beginning...') | Out-File log.txt -Encoding utf8 -Append
-
-    }
-    catch [System.Exception] {
-        ([DateTime]::Now.ToString() + ' - miner execution failed....' +  $_.Exception.Message) | Out-File log.txt -Encoding utf8 -Append
-    }
-    Start-Process -FilePath $MinerPath
-
-    Start-Sleep -Seconds 15
+    Start-Process -Wait -FilePath $MinerPath
 }
 
 
