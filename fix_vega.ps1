@@ -219,6 +219,9 @@ function StartMiner{
     "Changing location to $minerDirectoryName ..." | Out-Host
     Set-Location $minerDirectoryName
 
+    #! Sleep for 30 seconds to allow for time for display adapters to finish "setting up?..."
+    Start-Sleep -Seconds 30
+
     # Execute miner...
     "Executing miner $MinerPath ..." | Out-Host
     Start-Process -Wait -FilePath $MinerPath
