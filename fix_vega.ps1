@@ -189,8 +189,9 @@ function CleanVegaJobs{
 
     # Cleanup Vega workflow jobs....
     'Cleaning up Vega workflows...' | Out-Host
+    Get-Job | Where-Object {$_.Name -like '*vega*'} | Stop-Job
+    Get-Job | Where-Object {$_.Name -like '*vega*'} | Remove-Job
     Get-ScheduledJob | Where-Object {$_.Name -like '*vega*'} | Unregister-ScheduledJob
-
     }
 
 function CleanScheduledTask{
@@ -217,6 +218,9 @@ function StartMiner{
     # Change location to location of miner
     "Changing location to $minerDirectoryName ..." | Out-Host
     Set-Location $minerDirectoryName
+
+    #! Sleep for 30 seconds to allow for time for display adapters to finish "setting up?..."
+    Start-Sleep -Seconds 30
 
     # Execute miner...
     "Executing miner $MinerPath ..." | Out-Host
@@ -268,15 +272,17 @@ workflow VegaFixWorkflow {
     # Enable all Vega dispay adapters...
     ChangeVegaState -EnableOperation
 
-    # Clean up jobs and scheduled jobs / workflows...
-    CleanVegaJobs
-
     # If the miner path was provided, start the miner in a new process.
     if ($MinerPath){
         StartMiner -MinerPath $MinerPath
     }
 
+    # Clean up jobs and scheduled jobs / workflows...
+    CleanVegaJobs
+    
+    # Remove teh scheduled task that runs the workflow on logon
     CleanScheduledTask
+
     # Finished!
     return
 }
@@ -358,7 +364,7 @@ Get-ScheduledTask -TaskName ResumeWFJobTask -ErrorAction SilentlyContinue | Unre
 
 'scheduling resume task...' | Out-Host
 $act = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $resumeActionscript
-$trig = New-ScheduledTaskTrigger -AtLogOn -RandomDelay 00:00:55
+$trig = New-ScheduledTaskTrigger -RandomDelay 00:01:00 -AtLogOn
 Register-ScheduledTask -TaskName ResumeWFJobTask -Action $act -Trigger $trig -RunLevel Highest
 
 
@@ -376,8 +382,3 @@ else {
 '(remember, you can also execute this script with the -MinerPath parameter to ' | Out-Host
 'also have this script restart your miner upon reboot! ie. ' | Out-Host
 'fix_vega.ps1 -MinerPath c:\miner\miner.bat' | Out-Host 
-
-$j = Get-Job -Name ResumeVegaFixWorkflow | Select-Object -Index 0
-Wait-Job $j
-
-'Initial job now being suspended, rebooting...' | Out-Host

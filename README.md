@@ -25,6 +25,9 @@ You view a demonstration video of this script in action here: [VegaFrontierMiner
 ### Vega Frontier Edition Graphics Cards
 This script is intended for usage to fix the dreaded hash rate drop with the Vega Frontier Edition cards from AMD.  They are the most powerful (as far as affordability goes) graphics cards for mining Cryptonight, but if you need to restart your computer or it crashes.... you may spend countless hours fiddling around with reinstallation of drivers.
 
+### Demonstration Video Available on YouTube!
+You view a demonstration video of this script in action here: [VegaFrontierMinerFix](https://www.youtube.com/watch?v=j9AGUGSHTs8 "Vega Frontier Miner Fix!")
+
 ## Instructions
 Please take note that this script is functional, but it requies a little bit of special care (and patience).  I have created it for my own personal use but am more than happy to share it (obviously; because here you are).
 
@@ -32,7 +35,7 @@ Please take note that this script is functional, but it requies a little bit of 
 2. Download both the Adrenaline and Blockchain drivers, and run the executables.  **DO NOT INSTALL THEM** using the AMD provided GUI; simple extract them to the **DEFAULT** location, and move on to step three.
 3. Download the Display Driver Uninstaller setup and extract it to the folder of your choosing.
 4. Download the entire repo, and extract it to any folder you like (all files must remain grouped together though)
-5. Modify the script at approximately line 241 and replace with the full path of the DDU executable that you extracted in step # 3.
+5. Modify the script at approximately line 242 and replace with the full path of the DDU executable that you extracted in step # 3.
 6. Run the script, you will be required to run it as administrator (you can also pass in the -MinerPath parameter to tell the script to execute your mining software executable or batch file upon completion).
 7. You will be prompted to enter your local Windows credentials.  You can examine the script to ensure that it is safe; you will be required to enter them in NTAccountName format (domain\username).  I have taken the liberty of having this pre-populate for you.
 8. Once you press enter, the process of optimizing your VEGA setup will begin.
@@ -57,8 +60,8 @@ is disabled on this system*.... try running the following commands as Administra
 
  `Set-ExecutionPolicy Unrestricted -Confirm:$false -Force`
 
- 3. If you run into any problems or have any feedback, feel free to drop me an email at [iAm9001@outlook.com](mailto:iAm9001@outlook.com "iAm9001@outlook.com").
- 
+ 3. If you run into any problems or have any feedback, feel free to drop me an email at [iAm9001@outlook.com](mailto:iAm9001@outlook.com "iAm9001@outlook.com")
+ 4. It is recommended to execute the script in a Powershell window that is already running in an Administrator context.
 
 ## Shameless donation plug
 If you are feeling generous and this has stopped you from pulling out your hair, accidentally knocking over your mining rig by pulling the cords in and out of your Vegas countless times trying to figure out what is wrong, saved you from carpal tunnel from right clicking and tirelessly disabling and enabling your GPUs in vain, or from constantly having to jump into your registry to disable Crossfire on your ultra 13 strong Vega mining rig.... please feel free to send some love over to one of the addresses below :)
