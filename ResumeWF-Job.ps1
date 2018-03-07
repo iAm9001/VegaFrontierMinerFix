@@ -1,6 +1,7 @@
 #* This is the script that will initiate the workflow upon the computer restarting
 
 Start-Sleep -Seconds 10
+'Sleeping for 10 seconds before resuming workflow...' | Out-Host
 
 # Acquire teh job to wait on ....
 $job = Get-Job -Name ResumeVegaFixWorkflow | Where-Object {$_.State -eq 'Suspended'} | select -Index 0
