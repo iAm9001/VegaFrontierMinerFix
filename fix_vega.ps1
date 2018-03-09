@@ -53,8 +53,9 @@ function InstallAdrenalineDrivers {
     $displays = (Get-PnpDevice | Where-Object {($_.friendlyname -like 'Microsoft Basic Display Adapter' -and $_.Present) -or $_.friendlyname -like 'Radeon Vega Frontier Edition'})[-1]
     
     # Initiate a new Powershell process to install the drivers using Devcon
-    Start-Process -Wait -FilePath 'C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe' -ArgumentList @(("update C:\AMD\Win10-64Bit-Radeon-Software-Adrenalin-Edition-18.1.1-Jan4\Packages\Drivers\Display\WT6A_INF\C0322612.inf " + $displays.HardwareID[0])) | Out-Null
-    
+    #Start-Process -Wait -FilePath 'C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe' -ArgumentList @(("update C:\AMD\Win10-64Bit-Radeon-Software-Adrenalin-Edition-18.1.1-Jan4\Packages\Drivers\Display\WT6A_INF\C0322612.inf " + $displays.HardwareID[0])) | Out-Null
+    Start-Process -Wait -FilePath 'C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe' -ArgumentList @(("update C:\AMD\Win10-64Bit-Radeon-Software-Adrenalin-Edition-18.3.1-March5\Packages\Drivers\Display\WT6A_INF\C0325048.inf " + $displays.HardwareID[0])) | Out-Null
+
     # Pause for 2 minutes to allow for any back-end system operations to clean up
     'Installation of Adrenaline drivers complete.' | Out-Host
     'Pausing for 2 minutes before next operations...' | Out-Host
