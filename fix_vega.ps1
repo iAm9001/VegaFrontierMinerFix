@@ -178,6 +178,8 @@ function DisableCrossfireUlps {
         
         'Disabling Ulps on ' + $k.PSPath | Out-Host
         Set-ItemProperty -Path. -Name 'EnableUlps' -Value 0 | Out-Null
+
+#        Set-ItemProperty -Path. -Name 'PP_PhmSoftPowerPlayTable' -Value (get-content C:\crypto\powershell\VegaFrontierMinerFix\soc_clock_bump.txt) | Out-Null
         
         'Next...' | Out-Host
     }
