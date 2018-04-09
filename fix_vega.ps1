@@ -245,6 +245,11 @@ workflow VegaFixWorkflow {
     CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
     Restart-Computer -Wait
 
+    # Execute CleanVegaDrivers twice, to be sure that there are no artifacts left over from old drivers.  Precaution taken since
+    # we can't automate DDU in Safe-Mode.
+    CleanVegaDrivers -ddu 'C:\crypto\ddu\Display Driver Uninstaller.exe'
+    Restart-Computer -Wait
+
     # Install the Adrenaline drivers
     InstallAdrenalineDrivers
 
